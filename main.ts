@@ -1,8 +1,33 @@
-export function add(a: number, b: number): number {
-  return a + b;
-}
+import { OPENAI_API_KEY } from "./secrets.ts";
 
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  console.log("Add 2 + 3 =", add(2, 3));
-}
+const endpoint = "https://api.openai.com/v1/chat/completions";
+const model = "gpt-3.5-turbo";
+
+type ChatGPTMessage = {
+  "role": string;
+  "content": string;
+};
+type ChatGPTRequestBody = {
+  "model": string;
+  "messages": ChatGPTMessage[];
+};
+
+const requestBody: ChatGPTRequestBody = {
+  "model": `${model}`,
+  "messages": [
+    { "role": "user", "content": "こんにちは" },
+  ],
+};
+
+const chatGPTRequestOptions: RequestInit = {
+  method: `POST`,
+  headers: {
+    "Authorization": `Bearer ${OPENAI_API_KEY}`,
+    "Content-Type": `application/json`,
+  },
+  body: JSON.stringify(requestBody),
+};
+
+const res = await fetch(endpoint, chatGPTRequestOptions);
+const data = new Uint8Array(await res.arrayBuffer());
+await Deno.stdout.write(data);
