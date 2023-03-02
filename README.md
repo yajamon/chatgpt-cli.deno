@@ -4,6 +4,7 @@ ChatGPT APIをDenoで対話的に実行するクライアントを書いてみ�
 ## Require
 
 - Deno
+    - Deno 1.31.1 での動作確認はしました。
 
 ## Setup
 
