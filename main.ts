@@ -34,11 +34,12 @@ const chatGPTRequestOptions: RequestInit = {
 
 // interactive
 
+console.error("メッセージをどうぞ (改行で送信。未入力でCtrd+Dで終了。):");
 for await (const line of readLines(Deno.stdin)) {
   requestBody.messages[0] = { "role": "user", "content": line };
   chatGPTRequestOptions.body = JSON.stringify(requestBody);
-}
 
-const res = await fetch(endpoint, chatGPTRequestOptions);
-const data = new Uint8Array(await res.arrayBuffer());
-await Deno.stdout.write(data);
+  const res = await fetch(endpoint, chatGPTRequestOptions);
+  const data = new Uint8Array(await res.arrayBuffer());
+  await Deno.stdout.write(data);
+}
