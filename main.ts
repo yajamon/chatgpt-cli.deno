@@ -1,3 +1,4 @@
+import { readLines } from "https://deno.land/std@0.178.0/io/read_lines.ts";
 import { OPENAI_API_KEY } from "./secrets.ts";
 
 const endpoint = "https://api.openai.com/v1/chat/completions";
@@ -17,9 +18,7 @@ type ChatGPTRequestBody = {
 
 const requestBody: ChatGPTRequestBody = {
   "model": `${model}`,
-  "messages": [
-    { "role": "user", "content": "こんにちは" },
-  ],
+  "messages": [],
 };
 
 const chatGPTRequestOptions: RequestInit = {
@@ -31,6 +30,39 @@ const chatGPTRequestOptions: RequestInit = {
   body: JSON.stringify(requestBody),
 };
 
-const res = await fetch(endpoint, chatGPTRequestOptions);
-const data = new Uint8Array(await res.arrayBuffer());
-await Deno.stdout.write(data);
+/// ref: https://platform.openai.com/docs/api-reference/chat/create
+type ChatGPTResponse = {
+  "id": string;
+  "object": string;
+  "created": number;
+  "choices": {
+    "index": number;
+    "message": ChatGPTMessage;
+    "finish_reason": string;
+  }[];
+  "usage": {
+    "prompt_tokens": number;
+    "completion_tokens": number;
+    "total_tokens": number;
+  };
+};
+
+// interactive
+
+console.error("メッセージをどうぞ (改行で送信。未入力でCtrd+Dで終了。):");
+for await (const line of readLines(Deno.stdin)) {
+  requestBody.messages.push({ "role": "user", "content": line });
+  chatGPTRequestOptions.body = JSON.stringify(requestBody);
+
+  const res = await fetch(endpoint, chatGPTRequestOptions);
+  const jsonData: ChatGPTResponse = await res.json();
+  const message = jsonData.choices[0].message;
+
+  requestBody.messages.push({
+    "role": "assistant",
+    "content": message.content,
+  });
+
+  console.log("ChatGPT> ", message.content);
+  console.error(jsonData.usage);
+}
