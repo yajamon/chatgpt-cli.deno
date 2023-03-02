@@ -1,3 +1,4 @@
+import { readLines } from "https://deno.land/std@0.178.0/io/read_lines.ts";
 import { OPENAI_API_KEY } from "./secrets.ts";
 
 const endpoint = "https://api.openai.com/v1/chat/completions";
@@ -30,6 +31,13 @@ const chatGPTRequestOptions: RequestInit = {
   },
   body: JSON.stringify(requestBody),
 };
+
+// interactive
+
+for await (const line of readLines(Deno.stdin)) {
+  requestBody.messages[0] = { "role": "user", "content": line };
+  chatGPTRequestOptions.body = JSON.stringify(requestBody);
+}
 
 const res = await fetch(endpoint, chatGPTRequestOptions);
 const data = new Uint8Array(await res.arrayBuffer());
