@@ -4,9 +4,12 @@ const endpoint = "https://api.openai.com/v1/chat/completions";
 const model = "gpt-3.5-turbo";
 
 type ChatGPTMessage = {
-  "role": string;
+  /// ref: https://platform.openai.com/docs/guides/chat/introduction
+  "role": "system" | "user" | "assistant";
   "content": string;
 };
+
+/// ref: https://platform.openai.com/docs/api-reference/chat/create
 type ChatGPTRequestBody = {
   "model": string;
   "messages": ChatGPTMessage[];
