@@ -53,10 +53,19 @@ const decoder = new TextDecoder();
 let content = "";
 
 console.error("メッセージをどうぞ (2重改行で送信。未入力でCtrd+Dで終了。):");
-for await (const line of readLines(Deno.stdin)) {
-  requestBody.messages.push({ "role": "user", "content": line });
-  chatGPTRequestOptions.body = JSON.stringify(requestBody);
+for await (const chunk of Deno.stdin.readable) {
+  const text = decoder.decode(chunk);
+  if (text != null) {
+    content += text;
+  }
 
+  if (!content.endsWith("\n\n")) {
+    continue;
+  }
+  console.error("(送信中)");
+
+  requestBody.messages.push({ "role": "user", "content": content });
+  chatGPTRequestOptions.body = JSON.stringify(requestBody);
   const res = await fetch(endpoint, chatGPTRequestOptions);
   const jsonData: ChatGPTResponse = await res.json();
   const message = jsonData.choices[0].message;
@@ -68,4 +77,7 @@ for await (const line of readLines(Deno.stdin)) {
 
   console.log("ChatGPT> ", message.content);
   console.error(jsonData.usage);
+
+  // reset state
+  content = "";
 }
