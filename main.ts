@@ -52,7 +52,7 @@ type ChatGPTResponse = {
 const decoder = new TextDecoder();
 let content = "";
 
-console.error("メッセージをどうぞ (2重改行で送信。未入力でCtrd+Dで終了。):");
+console.error("メッセージをどうぞ (2重改行で送信。Ctrd+Dで終了。):");
 for await (const chunk of Deno.stdin.readable) {
   const text = decoder.decode(chunk);
   if (text != null) {
