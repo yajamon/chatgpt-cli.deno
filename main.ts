@@ -49,7 +49,10 @@ type ChatGPTResponse = {
 
 // interactive
 
-console.error("メッセージをどうぞ (改行で送信。未入力でCtrd+Dで終了。):");
+const decoder = new TextDecoder();
+let content = "";
+
+console.error("メッセージをどうぞ (2重改行で送信。未入力でCtrd+Dで終了。):");
 for await (const line of readLines(Deno.stdin)) {
   requestBody.messages.push({ "role": "user", "content": line });
   chatGPTRequestOptions.body = JSON.stringify(requestBody);
